@@ -1,0 +1,17 @@
+{
+  "name": "image-manipulator",
+  "displayName": "Image Manipulator",
+  "version": "3.0.0",
+  "description": "Manipulates images using ImageMagick",
+  "main": "Main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jakub Hojnacki",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^10.12.18"
+  },
+  "dependencies": {}
+}
