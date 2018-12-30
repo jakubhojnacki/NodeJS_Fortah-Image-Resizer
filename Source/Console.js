@@ -14,6 +14,10 @@ module.exports = class Console {
     console.log(pText)
   }
 
+  WriteIndentedLine(pIndentation, pText) {
+    this.WriteLine(' '.repeat(pIndentation) + pText);
+  }
+
   WriteSeparator() {
     console.log('-'.repeat(this.Width));
   }

@@ -1,11 +1,4 @@
 module.exports = class Settings {
-  get ImageMagickConvertPath() {
-    return this.mImageMagickConvertPath;
-  }
-  set ImageMagickConvertPath(pValue) {
-    this.mImageMagickConvertPath = pValue;
-  }
-  
   get Directory() {
     return this.mDirectory;
   }
@@ -35,7 +28,6 @@ module.exports = class Settings {
   }
 
   constructor() {
-    this.mImageMagickConvertPath = '';
     this.mDirectory = '';
     this.mFileExtensions = [];
     this.mWidth = 0;
@@ -44,7 +36,6 @@ module.exports = class Settings {
 
   static Deserialise(pData) {
     let NewSettings = new Settings();
-    NewSettings.ImageMagickConvertPath = pData.ImageMagickConvertPath;
     NewSettings.Directory = pData.Directory;
     NewSettings.FileExtensions = Settings.ProcessFileExtensions(pData.FileExtensions);
     NewSettings.Width = pData.Width;

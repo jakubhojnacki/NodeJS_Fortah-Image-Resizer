@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const ImageMagick = require('./ImageMagick');
+const gm = require('gm');
 
-module.exports = class Manipulator {
+module.exports = class Resizer {
   get Script() {
     return this.mScript;
   }
@@ -25,22 +25,20 @@ module.exports = class Manipulator {
   }
 
   ProcessDirectory(pDirectoryPath, pLevel) {
-    const DirectoryName = path.basename(pDirectoryPath);
-    this.Script.Console.WriteLine(' '.repeat(pLevel) + `[${DirectoryName}]`);
     const Files = fs.readdirSync(pDirectoryPath);
-    Files.forEach(File => {
+    for (const File of Files) {
       const FilePath = pDirectoryPath + '/' + File;
       if (fs.statSync(FilePath).isDirectory())
         this.ProcessDirectory(FilePath, pLevel + 2);
       else
         if (this.IsFileInFilter(FilePath))
           this.ProcessFile(FilePath, pLevel + 2);
-    });
+    };
   }
 
   IsFileInFilter(pFilePath) {
-    var Result = false;
-    var FileExtension = path.extname(pFilePath).trim().toLowerCase();
+    let Result = false;
+    let FileExtension = path.extname(pFilePath).trim().toLowerCase();
     if (FileExtension.length > 0) {
       if (FileExtension.startsWith('.'))
         FileExtension = FileExtension.substr('.'.length);
@@ -51,9 +49,27 @@ module.exports = class Manipulator {
   }
 
   ProcessFile(pFilePath, pLevel) {
-    const FileName = path.basename(pFilePath);
-    this.Script.Console.WriteLine(' '.repeat(pLevel) + `${FileName}`);
-    const TheImageMagick = new ImageMagick(this.Script);
-    TheImageMagick.Resize(pFilePath, this.Script.Settings.Width, this.Script.Settings.Height);
+    let ImageSize = null;
+    gm(pFilePath)
+      .size((Error, Size) => { this.ResizeFile(pFilePath, pLevel, Size, Error); });
+  }
+
+  ResizeFile(pFilePath, pLevel, pImageSize, pError) {
+    if (!pError) {
+      const ResizeWidth = pImageSize.width >= pImageSize.height ? this.Script.Settings.Width : null;
+      const ResizeHeight = pImageSize.width < pImageSize.height ? this.Script.Settings.Height : null;
+      gm(pFilePath)
+        .resize(ResizeWidth, ResizeHeight)
+        .crop(this.Script.Settings.Width, this.Script.Settings.Height, 0, 0)
+        .write(pFilePath, (Error) => { this.FileProcessed(pFilePath, pLevel, Error); });
+    } else
+      throw pError;
+  }
+
+  FileProcessed(pFilePath, pLevel, pError) {
+    if (!pError)
+      this.Script.Console.WriteLine(`${pFilePath}`);
+    else
+      throw pError;
   }
 }

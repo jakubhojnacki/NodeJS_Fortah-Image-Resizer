@@ -1,5 +1,4 @@
 {
-  "ImageMagickConvertPath": "/usr/local/bin/convert",
   "Directory": "/home/Temp",
   "FileExtensions": [
     "jpg",
