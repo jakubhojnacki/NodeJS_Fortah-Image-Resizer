@@ -24,15 +24,21 @@ module.exports = class Script {
     this.mConsole = new Console(80);
   }
 
-  Run() {
+  async Run() {
     this.InitialiseScreen();
     let TheResizer = new Resizer(this);
-    TheResizer.Run();
+    await TheResizer.Run();
+    this.FinaliseScreen();
   }
 
   InitialiseScreen() {
     this.Console.WriteLine(`${this.Info.Name} ${this.Info.Version} by ${this.Info.Author}`);
     this.Console.WriteLine(`${this.Info.Description}`);
     this.Console.WriteSeparator();    
+  }
+
+  FinaliseScreen() {
+    this.Console.WriteSeparator();    
+    this.Console.WriteLine('Completed');
   }
 }

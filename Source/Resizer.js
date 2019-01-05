@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const gm = require('gm');
+const sharp = require('sharp');
 
 module.exports = class Resizer {
   get Script() {
@@ -19,20 +19,21 @@ module.exports = class Resizer {
     this.mFileMask = '';
   }
 
-  Run() {
+  async Run() {
     this.FileMask = this.Script.Settings.FileMask;
-    this.ProcessDirectory(this.Script.Settings.Directory, 0);
+    await this.ProcessDirectory(this.Script.Settings.Directory, 0);
   }
 
-  ProcessDirectory(pDirectoryPath, pLevel) {
+  async ProcessDirectory(pDirectoryPath, pLevel) {
+    this.Script.Console.WriteIndentedLine(pLevel, `[${pDirectoryPath}]`);
     const Files = fs.readdirSync(pDirectoryPath);
     for (const File of Files) {
       const FilePath = pDirectoryPath + '/' + File;
       if (fs.statSync(FilePath).isDirectory())
-        this.ProcessDirectory(FilePath, pLevel + 2);
+        await this.ProcessDirectory(FilePath, pLevel + 2);
       else
         if (this.IsFileInFilter(FilePath))
-          this.ProcessFile(FilePath, pLevel + 2);
+          await this.ProcessFile(FilePath, pLevel + 2);
     };
   }
 
@@ -48,28 +49,13 @@ module.exports = class Resizer {
     return Result;
   }
 
-  ProcessFile(pFilePath, pLevel) {
-    let ImageSize = null;
-    gm(pFilePath)
-      .size((Error, Size) => { this.ResizeFile(pFilePath, pLevel, Size, Error); });
-  }
-
-  ResizeFile(pFilePath, pLevel, pImageSize, pError) {
-    if (!pError) {
-      const ResizeWidth = pImageSize.width >= pImageSize.height ? this.Script.Settings.Width : null;
-      const ResizeHeight = pImageSize.width < pImageSize.height ? this.Script.Settings.Height : null;
-      gm(pFilePath)
-        .resize(ResizeWidth, ResizeHeight)
-        .crop(this.Script.Settings.Width, this.Script.Settings.Height, 0, 0)
-        .write(pFilePath, (Error) => { this.FileProcessed(pFilePath, pLevel, Error); });
-    } else
-      throw pError;
-  }
-
-  FileProcessed(pFilePath, pLevel, pError) {
-    if (!pError)
-      this.Script.Console.WriteLine(`${pFilePath}`);
-    else
-      throw pError;
+  async ProcessFile(pFilePath, pLevel) {
+    const PathInfo = path.parse(pFilePath);
+    const TargetFilePath = path.join(PathInfo.dir, PathInfo.name + '.tmp' + PathInfo.ext);
+    const Image = sharp(pFilePath);
+    await Image.resize(this.Script.Settings.Width, this.Script.Settings.Height, { fit: 'cover', gravity: sharp.gravity.north }).toFile(TargetFilePath);
+    await fs.unlinkSync(pFilePath);
+    await fs.renameSync(TargetFilePath, pFilePath);
+    this.Script.Console.WriteIndentedLine(pLevel, PathInfo.base);
   }
 }
