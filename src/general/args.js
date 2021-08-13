@@ -20,6 +20,8 @@ export default class Args extends Array {
         let index = -1;
         let tag = "";
         let argTemplate = null;
+        pArgValues.shift();
+        pArgValues.shift();
         for (let argValue of pArgValues) {
             argValue = argValue.trim().removeIfStartsWith("\"").removeIfEndsWith("\"");
             if (argValue.startsWith("-")) {

@@ -6,6 +6,7 @@
 
 export default class ArgName {
     static get sourceFilePath() { return "SourceFilePath"; }
+    static get destinationDirectoryPath() { return "DestinationDirectoryPath"; }
     static get sizes() { return "Sizes"; }
     static get destinationDirectoryPattern() { return "DestinationDirectoryPattern"; }
     static get destinationFilePattern() { return "DestinationFilePattern"; }
@@ -13,6 +14,7 @@ export default class ArgName {
 
     static get values() { return [
         ArgName.sourceFilePath,
+        ArgName.destinationDirectoryPath,
         ArgName.sizes,
         ArgName.destinationDirectoryPattern,
         ArgName.destinationFilePattern,

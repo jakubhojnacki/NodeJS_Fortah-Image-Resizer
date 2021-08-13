@@ -11,5 +11,7 @@
     "keywords": [],
     "license": "ISC",
     "devDependencies": {},
-    "dependencies": {}
+    "dependencies": {
+        "imagemagick": "^0.1.3"        
+    }
 }
