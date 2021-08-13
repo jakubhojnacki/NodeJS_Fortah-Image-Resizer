@@ -1,0 +1,17 @@
+{
+  "name": "image-resizer",
+  "displayName": "Image Resizer",
+  "version": "3.0.0",
+  "description": "Resizes images using ImageMagick",
+  "main": "Main.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "Jakub Hojnacki",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^10.12.18"
+  },
+  "dependencies": {
+    "sharp": "^0.21.1"
+  }
+}
