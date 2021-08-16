@@ -312,7 +312,7 @@ String.prototype.replaceEndsOfLine = function(pReplace) {
 
 String.prototype.format = function(pReplacements) {
     let newString = this.valueOf();
-    for (const index; index < pReplacements.length; index++)
+    for (const index = 0; index < pReplacements.length; index++)
         newString = newString.replace(`{${index}}`, pReplacements[index]);
     return newString;
 }

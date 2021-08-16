@@ -10,8 +10,7 @@
  * @example widthxheight!     | Width and height emphatically given, original aspect ratio ignored.    
  */
 
-import "../general/javaScript";
-
+import "../general/javaScript.js";
 
 export default class Size {
     get width() { return this.mWidth; }
@@ -19,9 +18,9 @@ export default class Size {
     get ignoreAspectRatio() { return this.mIgnoreAspectRatio; }
 
     constructor(pWidth, pHeight, pIgnoreAspectRatio) {
-        this.mWidth = String.default(pWidth);
-        this.mHeight = String.default(pHeight);
-        this.mIgnoreAspectRatio = Boolean.default(pIgnoreAspectRatio);
+        this.mWidth = String.validate(pWidth);
+        this.mHeight = String.validate(pHeight);
+        this.mIgnoreAspectRatio = Boolean.validate(pIgnoreAspectRatio);
     }
 
     static parse(pText) {

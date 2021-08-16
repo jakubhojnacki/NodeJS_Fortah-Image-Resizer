@@ -4,8 +4,8 @@
  * @version 0.0.1 (2021-08-13)
  */
 
-import "../general/javaScript";
-import Size from "./size";
+import "../general/javaScript.js";
+import Size from "./size.js";
 
 export default class Sizes extends Array {
     constructor() {

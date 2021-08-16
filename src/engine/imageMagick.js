@@ -1,14 +1,14 @@
 /**
- * @module "ImageMagickRunner" class
+ * @module "ImageMagick" class
  * @description Class wrapping ImageMagick functionality
  * @version 0.0.2 (2021-08-12)
  */
 
 import "../general/javaScript.js";
-import ImageMagick from "imagemagick";
+import ImageMagickEngine from "imagemagick";
 import ImageInformation from "./imageInformation.js";
 
-export default class ImageMagickRunner {
+export default class ImageMagick {
     constructor() {
     }
 	
@@ -27,7 +27,7 @@ export default class ImageMagickRunner {
 
 	convert(pParameters) {
 		return new Promise((lResolve, lReject) => {
-			ImageMagick.convert(pParameters, (lError, lStdOut) => {
+			ImageMagickEngine.convert(pParameters, (lError, lStdOut) => {
 				if (lError)
 					lReject();
 				lResolve(lStdOut);
@@ -42,7 +42,7 @@ export default class ImageMagickRunner {
 
 	identify(pImageFilePath) {
 		return new Promise((lResolve, lReject) => {
-			ImageMagick.identify(pImageFilePath, (lError, lImageData) => {
+			ImageMagickEngine.identify(pImageFilePath, (lError, lImageData) => {
 				if (lError)
 					lReject();
 				lResolve(lImageData);

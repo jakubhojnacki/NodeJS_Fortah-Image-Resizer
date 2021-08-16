@@ -5,19 +5,19 @@
  */
 
 export default class ArgName {
-    static get sourceFilePath() { return "SourceFilePath"; }
-    static get destinationDirectoryPath() { return "DestinationDirectoryPath"; }
+    static get source() { return "Source"; }
+    static get destination() { return "Destination"; }
     static get sizes() { return "Sizes"; }
-    static get destinationDirectoryPattern() { return "DestinationDirectoryPattern"; }
-    static get destinationFilePattern() { return "DestinationFilePattern"; }
+    static get directoryNameTemplate() { return "DirectoryNameTemplate"; }
+    static get fileNameTemplate() { return "FileNameTemplate"; }
     static get debugMode() { return "DebugMode"; }
 
     static get values() { return [
-        ArgName.sourceFilePath,
-        ArgName.destinationDirectoryPath,
+        ArgName.source,
+        ArgName.destination,
         ArgName.sizes,
-        ArgName.destinationDirectoryPattern,
-        ArgName.destinationFilePattern,
+        ArgName.directoryNameTemplate,
+        ArgName.fileNameTemplate,
         ArgName.debugMode
     ]; }
 

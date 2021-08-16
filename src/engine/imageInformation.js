@@ -4,7 +4,7 @@
  * @version 0.0.1 (2021-08-13)
  */
 
-import "../general/javaScript";
+import "../general/javaScript.js";
 
 export default class ImageInformation {
     //TODO - Not implemented
