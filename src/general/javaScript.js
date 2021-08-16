@@ -309,3 +309,10 @@ String.prototype.replaceAll = function(pFind, pReplace) {
 String.prototype.replaceEndsOfLine = function(pReplace) {
     return this.replace(new RegExp("\n", 'g'), pReplace).replace(new RegExp("\n\r", 'g'), pReplace);
 }
+
+String.prototype.format = function(pReplacements) {
+    let newString = this.valueOf();
+    for (const index; index < pReplacements.length; index++)
+        newString = newString.replace(`{${index}}`, pReplacements[index]);
+    return newString;
+}

@@ -5,11 +5,17 @@
  */
 
 import "../general/javaScript.js";
+import FileSystem from "fs";
 
 export default class FileSystemToolkit {
     static toDirectoryName(pString) {
         const string = String.validate(pString);
         const directoryName = string.replace(/[/\\?%*:|"<>,;=]/g, "_");
         return directoryName;
+    }
+
+    static deleteIfExists(pPath) {
+        if (FileSystem.existsSync(pPath))
+            FileSystem.unlinkSync(pPath);
     }
 }
