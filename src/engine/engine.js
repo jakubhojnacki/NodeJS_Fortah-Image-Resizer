@@ -6,6 +6,7 @@
 
 import "../general/javaScript.js";
 import ArgName from "../args/argName.js";
+import FileMatcher from "../general/fileMatcher.js";
 import FileSystem from "fs";
 import FileSystemToolkit from "../general/fileSystemToolkit.js";
 import ImageMagick from "./imageMagick.js";
@@ -25,10 +26,11 @@ export default class Engine {
     constructor() {
         this.mSource = Source.parse(this.application.args.get(ArgName.source));
         this.mDestination = this.application.args.get(ArgName.destination);
-        this.mSizes = this.application.args.get(ArgName.sizes);
+        this.mSizes = Sizes.parse(this.application.args.get(ArgName.sizes));
         this.mDirectoryNameTemplate = this.application.args.get(ArgName.directoryNameTemplate);
         this.mFileNameTemplate = this.application.args.get(ArgName.fileNameTemplate);
         this.mImageMagick = new ImageMagick();
+        this.mSourceFileMatcher = null;
     }
 
     async run() {      
@@ -45,7 +47,13 @@ export default class Engine {
     }
 
     async process() {
-        const sizes = Sizes.parse(this.sizes);
+        this.processDirectory(this.source.directory);
+    }
+
+    async processDirectory() {
+    }
+
+    async processFile() {
         for (const size of sizes) {
             const temporaryFilePath = this.buildTemporaryFilePath();
             FileSystemToolkit.deleteIfExists(temporaryFilePath);
