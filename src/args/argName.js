@@ -8,16 +8,16 @@ export default class ArgName {
     static get source() { return "Source"; }
     static get destination() { return "Destination"; }
     static get sizes() { return "Sizes"; }
-    static get directoryNameTemplate() { return "DirectoryNameTemplate"; }
-    static get fileNameTemplate() { return "FileNameTemplate"; }
+    static get directoryTemplate() { return "DirectoryTemplate"; }
+    static get fileTemplate() { return "FileTemplate"; }
     static get debugMode() { return "DebugMode"; }
 
     static get values() { return [
         ArgName.source,
         ArgName.destination,
         ArgName.sizes,
-        ArgName.directoryNameTemplate,
-        ArgName.fileNameTemplate,
+        ArgName.directoryTemplate,
+        ArgName.fileTemplate,
         ArgName.debugMode
     ]; }
 

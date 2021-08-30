@@ -128,7 +128,7 @@ Date.prototype.toTimeStamp = function() {
 }
 
 Date.prototype.toFileTimeStamp = function() {
-	return this.format("yyyyMMdd.hhmm");
+	return this.format("yyyyMMdd.hhmmsszzz");
 }
 
 Number.compare = function(pNumber) {
@@ -312,7 +312,7 @@ String.prototype.replaceEndsOfLine = function(pReplace) {
 
 String.prototype.format = function(pReplacements) {
     let newString = this.valueOf();
-    for (const index = 0; index < pReplacements.length; index++)
+    for (let index = 0; index < pReplacements.length; index++)
         newString = newString.replace(`{${index}}`, pReplacements[index]);
     return newString;
 }

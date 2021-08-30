@@ -6,6 +6,7 @@
 
 import "../general/javaScript.js";
 import FileSystem from "fs";
+import Path from "path";
 
 export default class FileSystemToolkit {
     static toDirectoryName(pString) {
@@ -14,8 +15,25 @@ export default class FileSystemToolkit {
         return directoryName;
     }
 
+    static createDirectoryIfDoesntExist(pPath) {
+        if (!FileSystem.existsSync(pPath))
+            FileSystem.mkdirSync(pPath, { recursive: true });
+    }
+
     static deleteIfExists(pPath) {
         if (FileSystem.existsSync(pPath))
             FileSystem.unlinkSync(pPath);
+    }
+
+    static copyFile(pSourceFilePath, pDestinationFilePath) {
+        const destinationDirectoryPath = Path.dirname(pDestinationFilePath);
+        this.createDirectoryIfDoesntExist(destinationDirectoryPath);
+        FileSystem.copyFileSync(pSourceFilePath, pDestinationFilePath);
+    }
+
+    static renameFile(pSourceFilePath, pDestinationFilePath) {
+        const destinationDirectoryPath = Path.dirname(pDestinationFilePath);
+        this.createDirectoryIfDoesntExist(destinationDirectoryPath);
+        FileSystem.renameSync(pSourceFilePath, pDestinationFilePath);
     }
 }

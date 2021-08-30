@@ -10,7 +10,7 @@ export default class FileMatcher {
     get regex() { return this.mRegex; }
 
 	constructor(pFilter) {
-        const filter = String.validate(pFIlter);
+        const filter = String.validate(pFilter);
 		const pattern = FileMatcher.createPattern(filter);
 		this.mRegex = new RegExp(pattern);
 	}

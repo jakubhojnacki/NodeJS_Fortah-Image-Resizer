@@ -15,16 +15,13 @@ import Sizes from "./sizes.js";
 import Source from "./source.js";
 
 export default class Engine {
-    get application() { return global.theApplication; }
-
     get source() { return this.mSource; }
     get destination() { return this.mDestination; }
     get sizes() { return this.mSizes; }
-    get directoryNameTemplate() { return this.mDirectoryNameTemplate; }
-    get fileNameTemplate() { return this.mFileNameTemplate; }
+    get directoryTemplate() { return this.mDirectoryTemplate; }
+    get fileTemplate() { return this.mFileTemplate; }
     get imageMagick() { return this.mImageMagick; }
     get sourceFileMatcher() { return this.mSourceFileMatcher; }
-    set sourceFileMatcher(pValue) { this.mSourceFileMatcher = pValue; }
 
     get onDirectoryFound() { return this.mOnDirectoryFound; }
     set onDirectoryFound(pValue) { this.mOnDirectoryFound = pValue; }
@@ -33,12 +30,12 @@ export default class Engine {
     get onResized() { return this.mOnResized; }
     set onResized(pValue) { this.mOnResized = pValue; }
 
-    constructor() {
-        this.mSource = Source.parse(this.application.args.get(ArgName.source));
-        this.mDestination = this.application.args.get(ArgName.destination);
-        this.mSizes = Sizes.parse(this.application.args.get(ArgName.sizes));
-        this.mDirectoryNameTemplate = this.application.args.get(ArgName.directoryNameTemplate);
-        this.mFileNameTemplate = this.application.args.get(ArgName.fileNameTemplate);
+    constructor(pSource, pDestination, pSizes, pDirectoryNameTemplate, pFileNameTemplate) {
+        this.mSource = Source.parse(pSource);
+        this.mDestination = String.validate(pDestination);
+        this.mSizes = Sizes.parse(pSizes);
+        this.mDirectoryTemplate = String.validate(pDirectoryNameTemplate);
+        this.mFileTemplate = String.validate(pFileNameTemplate);
         this.mImageMagick = new ImageMagick();
         this.mSourceFileMatcher = new FileMatcher(this.source.fileFilter);
         this.mOnDirectoryFound = null;
@@ -61,54 +58,66 @@ export default class Engine {
     }
 
     async process() {
-        this.processDirectory(this.source.directory, "", 0);
+        await this.processDirectory(this.source.directory, "", 0);
     }
 
-    async processDirectory(pDirectoryPath, pSubDirectoryPath, pIndentation) {
+    async processDirectory(pSourceDirectoryPath, pDirectorySubPath, pIndentation) {
         if (this.onDirectoryFound)
-            this.onDirectoryFound(pDirectoryPath, pIndentation);
-        const directoryEntries = FileSystem.readdirSync(pDirectoryPath, { withFileTypes: true });
-        for (directoryEntry of directoryEntries) {
-            if ((directoryEntry.isFolder()) && (this.source.isPattern)) {
-                const directoryPath = Path.combine(pDirectoryPath, directoryEntry.name);
-                const subDirectoryPath = Path.combine(pSubDirectoryPath, directoryEntry.name);
+            this.onDirectoryFound(pSourceDirectoryPath, pIndentation);
+        const sourceDirectoryEntries = FileSystem.readdirSync(pSourceDirectoryPath, { withFileTypes: true });
+        for (const sourceDirectoryEntry of sourceDirectoryEntries) {
+            if ((sourceDirectoryEntry.isDirectory()) && (this.source.isPattern)) {
+                const directoryPath = Path.join(pSourceDirectoryPath, sourceDirectoryEntry.name);
+                const subDirectoryPath = Path.join(pDirectorySubPath, sourceDirectoryEntry.name);
                 await this.processDirectory(directoryPath, subDirectoryPath, pIndentation + 1);
             }
-            if (directoryEntry.isFile())
-                if (this.sourceFileMatcher.matches(directoryEntry.name)) {
-                    const filePath = Path.combine(pDirectoryPath, directoryEntry.name);
-                    await this.processFile(filePath, subDirectoryPath, pIndentation);
+            if (sourceDirectoryEntry.isFile())
+                if (this.sourceFileMatcher.matches(sourceDirectoryEntry.name)) {
+                    const filePath = Path.join(pSourceDirectoryPath, sourceDirectoryEntry.name);
+                    await this.processFile(filePath, pDirectorySubPath, pIndentation);
                 }
         }
     }
 
-    async processFile(pFilePath, pSubDirectoryPath, pIndentation) {
+    async processFile(pSourceFilePath, pDirectorySubPath, pIndentation) {
+        const sourceFileName = Path.basename(pSourceFilePath);
         if (this.onFileFound)
-            this.onFileFound(pFilePath, pIndentation);
-        for (const size of sizes) {
-            const temporaryFilePath = this.buildTemporaryFilePath();
-            FileSystemToolkit.deleteIfExists(temporaryFilePath);
-            await this.imageMagick.resize(pFilePath, temporaryFilePath, size.width, size.height, size.ignoreAspectRatio);
-            const imageInformation = ImageMagick.getInformation(temporaryFilePath);
-            const destinationFilePath = this.buildDestinationFilePath(imageInformation);
-            FileSystem.renameSync(temporaryFilePath, destinationFilePath);
+            this.onFileFound(sourceFileName, pIndentation);
+        for (const size of this.sizes) {
+            const sourceImageInformation = await this.imageMagick.getInformation(pSourceFilePath);
+            if ((sourceImageInformation.width != size.width) || (sourceImageInformation.height != size.height)) {
+                const sourceFileExtension = Path.extname(pSourceFilePath);
+                const temporaryFilePath = this.buildTemporaryFilePath(sourceFileExtension);
+                FileSystemToolkit.deleteIfExists(temporaryFilePath);
+                await this.imageMagick.resize(pSourceFilePath, temporaryFilePath, size.width, size.height, size.ignoreAspectRatio);
+                const destinationImageInformation = await this.imageMagick.getInformation(temporaryFilePath);
+                const destinationFilePath = this.buildDestinationFilePath(sourceFileName, destinationImageInformation, pDirectorySubPath);
+                FileSystemToolkit.renameFile(temporaryFilePath, destinationFilePath);
+                if (this.onResized)
+                    this.onResized(destinationImageInformation, destinationFilePath, pIndentation);
+            } else {
+                const destinationFilePath = this.buildDestinationFilePath(sourceFileName, sourceImageInformation, pDirectorySubPath);
+                FileSystemToolkit.copyFile(temporaryFilePath, destinationFilePath);
+                if (this.onResized)
+                    this.onResized(sourceImageInformation, destinationFilePath, pIndentation);
+            }
         }
     }
 
-    buildTemporaryFilePath() {        
-        const fileName = `${Date.createFileTimeStamp()}.tmp`;
+    buildTemporaryFilePath(pSourceFileExtension) {        
+        const fileName = `${Date.createFileTimeStamp()}${pSourceFileExtension}`;
         return Path.join(this.destination, fileName);
     }
 
-    buildDestinationFilePath(pImageInformation) {
+    buildDestinationFilePath(pSourceFileName, pImageInformation, pDirectorySubPath) {
         const widthText = pImageInformation.width.pad(4);
         const heightText = pImageInformation.height.pad(4);
-        const replacements = [ this.sourceFileName, pImageInformation.width, pImageInformation.height, widthText, heightText ];
-        const destinationDirectoryPattern = String.validate(this.directoryNameTemplate);
-        const destinationDirectoryName = destinationDirectoryPattern.format(replacements);
-        const destinationFilePattern = String.validate(this.destinationFilePattern, "{0} {1}x{2}");
-        const destinationFileName = destinationFilePattern.format(replacements);
-        return Path.join(this.destination, destinationDirectoryName, destinationFileName);
+        const replacements = [ pSourceFileName, pImageInformation.width, pImageInformation.height, widthText, heightText ];
+        const directoryTemplate = String.validate(this.directoryTemplate);
+        const directoryName = directoryTemplate.format(replacements);
+        const fileTemplate = String.validate(this.fileTemplate, "{0} {1}x{2}");
+        const fileName = fileTemplate.format(replacements);
+        return Path.join(this.destination, directoryName, pDirectorySubPath, fileName);
     }
 
     finalise() {        

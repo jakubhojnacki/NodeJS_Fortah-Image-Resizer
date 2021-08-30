@@ -27,16 +27,34 @@ export default class Application {
 
     async run() {
         try {
-            if (this.initialise()) {
-                const engine = new Engine();
-                await engine.run();
-            }
+            if (this.initialise())
+                await this.runEngine();
         } catch (error) {
             const message = this.debugMode ? error.stack : error.message;
             this.logger.writeError(message);
         } finally {
             this.finalise();
         }
+    }
+
+    async runEngine() {
+        const __this = this;
+        const source = this.args.get(ArgName.source);
+        const destination = this.args.get(ArgName.destination);
+        const sizes = this.args.get(ArgName.sizes);
+        const directoryTemplate = this.args.get(ArgName.directoryTemplate);
+        const fileTemplate = this.args.get(ArgName.fileTemplate);
+        const engine = new Engine(source, destination, sizes, directoryTemplate, fileTemplate);
+        engine.onDirectoryFound = (lDirectoryPath, lIndentation) => { 
+            __this.logger.writeLine(`[${lDirectoryPath}]`, lIndentation * this.logger.tab); 
+        };
+        engine.onFileFound = (lFileName, lIndentation) => { 
+            __this.logger.writeLine(lFileName, (lIndentation + 1) * this.logger.tab); 
+        };
+        engine.onResized = (lImageInformation, lDestinationFilePath, lIndentation) => { 
+            __this.logger.writeLine(`${lImageInformation.width}x${lImageInformation.height} => ${lDestinationFilePath}`, (lIndentation + 2) * this.logger.tab); 
+        };
+        await engine.run();
     }
 
     initialise() {
