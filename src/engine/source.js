@@ -10,12 +10,12 @@ import Path from "path";
 
 export default class Source {
     get directory() { return this.mDirectory; }
-    get file() { return this.mFile; }
+    get fileFilter() { return this.mFileFilter; }
     get isPattern() { return this.mIsPattern; }
 
-    constructor(pDirectory, pFile, pIsPattern) {
+    constructor(pDirectory, pFileFilter, pIsPattern) {
         this.mDirectory = String.validate(pDirectory);
-        this.mFile = String.validate(pFile);
+        this.mFileFilter = String.validate(pFileFilter);
         this.mIsPattern = Boolean.validate(pIsPattern);
     }
 
@@ -23,8 +23,8 @@ export default class Source {
         if (this.directory)
             if (!FileSystem.existsSync(this.directory))
                 throw new Error(`Directory "${this.directory}" doesn't exist`);
-        if ((this.file) && (!this.isPattern)) {
-            const filePath = Path.join(this.directory, this.file);
+        if ((this.fileFilter) && (!this.isPattern)) {
+            const filePath = Path.join(this.directory, this.fileFilter);
             if (!FileSystem.existsSync(filePath))
                 throw new Error(`File "${filePath}" doesn't exist`);
         }
