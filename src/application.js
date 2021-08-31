@@ -29,8 +29,8 @@ export default class Application {
         try {
             if (this.initialise())
                 await this.runEngine();
-        } catch (error) {
-            const message = this.debugMode ? error.stack : error.message;
+        } catch (tError) {
+            const message = (tError ? (this.debugMode ? tError.stack : tError.message) : "Unknown error");
             this.logger.writeError(message);
         } finally {
             this.finalise();
@@ -42,8 +42,8 @@ export default class Application {
         const source = this.args.get(ArgName.source);
         const destination = this.args.get(ArgName.destination);
         const sizes = this.args.get(ArgName.sizes);
-        const directoryTemplate = this.args.get(ArgName.directoryTemplate);
-        const fileTemplate = this.args.get(ArgName.fileTemplate);
+        const directoryTemplate = this.args.get(ArgName.directoryTemplate, "");
+        const fileTemplate = this.args.get(ArgName.fileTemplate, "");
         const engine = new Engine(source, destination, sizes, directoryTemplate, fileTemplate);
         engine.onDirectoryFound = (lDirectoryPath, lIndentation) => { 
             __this.logger.writeLine(`[${lDirectoryPath}]`, lIndentation * this.logger.tab); 

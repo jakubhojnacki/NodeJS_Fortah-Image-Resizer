@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -13,8 +10,8 @@
             ],
             "program": "${workspaceFolder}/main.js",
             "args": [                
-                "C:\\Temp\\From\\*.png",
-                "C:\\Temp\\To",
+                "/home/Temp/From/*.png",
+                "/home/Temp/To",
                 "16,24,32,48,64,128,256",
                 "-ft", "{0} {3}",
                 "-d"

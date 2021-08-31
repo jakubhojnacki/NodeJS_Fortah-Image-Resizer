@@ -110,13 +110,15 @@ export default class Engine {
     }
 
     buildDestinationFilePath(pSourceFileName, pImageInformation, pDirectorySubPath) {
+        const sourceFileNameWithoutExtension = FileSystemToolkit.getFileNameWithoutExtension(pSourceFileName);
+        const sourceFileExtension = FileSystemToolkit.getFileExtension(pSourceFileName);
         const widthText = pImageInformation.width.pad(4);
         const heightText = pImageInformation.height.pad(4);
-        const replacements = [ pSourceFileName, pImageInformation.width, pImageInformation.height, widthText, heightText ];
+        const replacements = [ sourceFileNameWithoutExtension, pImageInformation.width, pImageInformation.height, widthText, heightText ];
         const directoryTemplate = String.validate(this.directoryTemplate);
         const directoryName = directoryTemplate.format(replacements);
-        const fileTemplate = String.validate(this.fileTemplate, "{0} {1}x{2}");
-        const fileName = fileTemplate.format(replacements);
+        const fileTemplate = String.validate(this.fileTemplate ? this.fileTemplate : "{0} {1}x{2}");
+        const fileName = `${fileTemplate.format(replacements)}${sourceFileExtension}`;
         return Path.join(this.destination, directoryName, pDirectorySubPath, fileName);
     }
 
