@@ -1,9 +1,20 @@
 #!/bin/bash
 
-FirstArgument=One
-SecondArgument=Two
-ThirdArgument=Three
+Mode=Files
+Source=/home/Temp/From/*.png
+Destination=/home/Temp/To
+Sizes=16,24,32,48,64,128,256
 
-node "./main.js" "$FirstArgument" "$SecondArgument" "$ThirdArgument"
+if [[ $Mode -eq "Folders" ]]
+then
+    echo "==> Folders Mode ==>"
+    node "./main.js" "%Source%" "%Destination%" "%Sizes%" -dt "{3}" -ft "{0}" -d
+fi
+
+if [[ $Mode -eq "Files" ]]
+then
+    echo "==> Files Mode ==>"
+    node "./main.js" "%Source%" "%Destination%" "%Sizes%" -ft "{0} {3}" -d
+fi
 
 read -p "Press enter to finish"    
