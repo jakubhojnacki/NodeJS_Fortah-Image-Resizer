@@ -1,17 +1,19 @@
 {
     "name": "image-resizer",
     "displayName": "Image Resizer",
-    "version": "4.0.0",
+    "version": "5.0.0",
     "description": "Resizes images using ImageMagick",
     "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
-    "date": "August 2021",
+    "date": "October 2021",
     "type": "module",
-    "main": "main.js",
+    "main": "./src/main.mjs",
     "scripts": {},
     "keywords": [],
     "license": "ISC",
-    "devDependencies": {},
     "dependencies": {
-        "imagemagick": "^0.1.3"
+        "console-library": "file:../lib/console-library",
+        "core-library": "file:../lib/core-library",
+        "file-system-library": "file:../lib/file-system-library",
+        "image-library": "file:../lib/image-library"
     }
 }

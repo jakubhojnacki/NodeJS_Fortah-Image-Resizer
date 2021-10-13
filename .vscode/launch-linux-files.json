@@ -8,7 +8,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/main.js",
+            "program": "${workspaceFolder}/src/main.mjs",
             "args": [                
                 "/home/Temp/From/*.png",
                 "/home/Temp/To",

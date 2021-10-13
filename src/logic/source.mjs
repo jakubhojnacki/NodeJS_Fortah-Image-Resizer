@@ -1,22 +1,23 @@
 /**
  * @module "Source" class
  * @description Specifies source (directory / file / file pattern)
- * @version 0.0.1 (2021-08-16)
  */
 
-import "../general/javaScript.js";
 import FileSystem from "fs";
 import Path from "path";
 
-export default class Source {
+export class Source {
     get directory() { return this.mDirectory; }
+    set directory(pValue) { this.mDirectory = String.validate(pValue); }
     get fileFilter() { return this.mFileFilter; }
+    set fileFilter(pValue) { this.mFileFilter = String.validate(pValue); }
     get isPattern() { return this.mIsPattern; }
+    set isPattern(pValue) { this.mIsPattern = Boolean.validate(pValue); }
 
     constructor(pDirectory, pFileFilter, pIsPattern) {
-        this.mDirectory = String.validate(pDirectory);
-        this.mFileFilter = String.validate(pFileFilter);
-        this.mIsPattern = Boolean.validate(pIsPattern);
+        this.directory = pDirectory;
+        this.fileFilter = pFileFilter;
+        this.isPattern = pIsPattern;
     }
 
     validate() {
