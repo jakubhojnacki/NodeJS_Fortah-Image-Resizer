@@ -6,12 +6,13 @@
     "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
     "date": "August 2021",
     "type": "module",
-    "main": "main.js",
+    "main": "./src/main.mjs",
     "scripts": {},
     "keywords": [],
     "license": "ISC",
-    "devDependencies": {},
     "dependencies": {
+        "fortah-console-library": "file:../FortahConsoleLibrary",
+        "fortah-core-library": "file:../FortahCoreLibrary",
         "imagemagick": "^0.1.3"
     }
 }

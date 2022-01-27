@@ -1,25 +1,29 @@
 /**
  * @module "Engine" class
  * @description Represents application engine
- * @version 0.0.1 (2021-08-10)
  */
 
-import "../general/javaScript.js";
-import ArgName from "../args/argName.js";
-import FileMatcher from "../general/fileMatcher.js";
 import FileSystem from "fs";
+import Path from "path";
+
+import FileMatcher from "../general/fileMatcher.js";
 import FileSystemToolkit from "../general/fileSystemToolkit.js";
 import ImageMagick from "./imageMagick.js";
-import Path from "path";
 import Sizes from "./sizes.js";
 import Source from "./source.js";
 
-export default class Engine {
+export class Logic {
     get source() { return this.mSource; }
+    set source(pValue) { this.mSource = String.verify(pValue); }
     get destination() { return this.mDestination; }
+    set destination(pValue) { this.mDestination = String.verify(pValue); }
     get sizes() { return this.mSizes; }
+    set sizes(pValue) { this.mSizes = String.verify(pValue); }
     get directoryTemplate() { return this.mDirectoryTemplate; }
+    set directoryTemplate(pValue) { this.mDirectoryTemplate = String.verify(pValue); }
     get fileTemplate() { return this.mFileTemplate; }
+    set fileTemplate(pValue) { this.mFileTemplate = String.verify(pValue); }
+    
     get imageMagick() { return this.mImageMagick; }
     get sourceFileMatcher() { return this.mSourceFileMatcher; }
 
@@ -30,12 +34,12 @@ export default class Engine {
     get onResized() { return this.mOnResized; }
     set onResized(pValue) { this.mOnResized = pValue; }
 
-    constructor(pSource, pDestination, pSizes, pDirectoryNameTemplate, pFileNameTemplate) {
-        this.mSource = Source.parse(pSource);
-        this.mDestination = String.validate(pDestination);
-        this.mSizes = Sizes.parse(pSizes);
-        this.mDirectoryTemplate = String.validate(pDirectoryNameTemplate);
-        this.mFileTemplate = String.validate(pFileNameTemplate);
+    constructor(pSource, pDestination, pSizes, pDirectoryTemplate, pFileTemplate) {
+        this.source = Source.parse(pSource);
+        this.destination = String.validate(pDestination);
+        this.sizes = Sizes.parse(pSizes);
+        this.directoryTemplate = String.validate(pDirectoryTemplate);
+        this.fileTemplate = String.validate(pFileTemplate);
         this.mImageMagick = new ImageMagick();
         this.mSourceFileMatcher = new FileMatcher(this.source.fileFilter);
         this.mOnDirectoryFound = null;

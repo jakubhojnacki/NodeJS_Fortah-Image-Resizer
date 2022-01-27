@@ -1,10 +1,12 @@
 /**
  * @module "ArgName" class
  * @description Class representing argument names
- * @version 0.0.3 (2021-08-10)
  */
 
-export default class ArgName {
+import { Enum } from "fortah-core-library";
+import { EnumItem } from "fortah-core-library";
+
+export class ArgName {
     static get source() { return "Source"; }
     static get destination() { return "Destination"; }
     static get sizes() { return "Sizes"; }
@@ -13,15 +15,19 @@ export default class ArgName {
     static get debugMode() { return "DebugMode"; }
 
     static get values() { return [
-        ArgName.source,
-        ArgName.destination,
-        ArgName.sizes,
-        ArgName.directoryTemplate,
-        ArgName.fileTemplate,
-        ArgName.debugMode
+        new EnumItem(ArgName.source),
+        new EnumItem(ArgName.destination),
+        new EnumItem(ArgName.sizes),
+        new EnumItem(ArgName.directoryTemplate),
+        new EnumItem(ArgName.fileTemplate),
+        new EnumItem(ArgName.debugMode)
     ]; }
 
     static parse(pText) {
         return Enum.parse(pText, ArgName.values, ArgName.name);
+    }
+    
+    static toString(pValue) {
+        return Enum.toString(pValue, ArgName.items, EndOfLineType.name);
     }
 }
