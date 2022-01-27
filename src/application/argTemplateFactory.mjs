@@ -3,9 +3,9 @@
  * @description Creates arg templates
  */
 
-import ArgName from "./argName.js";
-import ArgTemplate from "../general/argTemplate.js";
-import DataType from "../general/dataType.js";
+import { ArgName } from "../application/argName.mjs";
+import { ArgTemplate } from "fortah-core-library";
+import { DataType } from "fortah-core-library";
 
 export class ArgTemplateFactory extends ArgTemplateFactoryBase {
     create() { 
