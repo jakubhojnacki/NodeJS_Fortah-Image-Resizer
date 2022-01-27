@@ -16,8 +16,7 @@
                 "-dt", "{3}",
                 "-ft", "{0}",
                 "-d"
-            ],
-            "console": "integratedTerminal"
+            ]
         }
     ]
 }

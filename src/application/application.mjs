@@ -3,40 +3,68 @@
  * @description Represents the main application class
  */
 
+import { ConsoleApplication } from "fortah-console-library";
+import { ConsoleProgress } from "fortah-console-library";
 import { ArgTemplateFactory } from "../application/argTemplateFactory.mjs";
-import { ConsoleApplication } from "console-library";
 import { Logic } from "../logic/logic.mjs";
+import { LogicArgs } from "../logic/logicArgs.mjs";
 
 export class Application extends ConsoleApplication {
-    constructor() {
-        super();
-        this.argTemplates = ( new ArgTemplateFactory()).create();
+    get progress() { return this.mProgress; }
+    set progress(pValue) { this.mProgress = pValue; }
+
+    constructor(pRootDirectoryPath) {
+        super(pRootDirectoryPath, (new ArgTemplateFactory()).create());
+        this.progress = null;        
     }
 
     async runLogic() {
-        const source = this.args.get(ArgName.source);
-        const destination = this.args.get(ArgName.destination);
-        const sizes = this.args.get(ArgName.sizes);
-        const directoryTemplate = this.args.get(ArgName.directoryTemplate, "");
-        const fileTemplate = this.args.get(ArgName.fileTemplate, "");
+        const logicArgs = new LogicArgs(this.args);
+        this.console.writeLine(logicArgs.toString());
+
+        const logic = new Logic(this, logicArgs);
         
-        const logic = new Logic(source, destination, sizes, directoryTemplate, fileTemplate);
         const __this = this;
-        logic.onDirectoryFound = (lDirectory) => { __this.logic_onDirectoryFound(lDirectory); };
-        logic.onFileFound = (lFile) => { __this.logic_onFileFound(lFile); };
-        logic.onResized = (lImageInformation, lFile) => { __this.logic_onResized(lImageInformation, lFile); };
+        logic.onCount = (lEventArgs) => { __this.onLogicCount(lEventArgs); }
+        logic.onDirectoryFound = (lEventArgs) => { __this.onLogicDirectoryFound(lEventArgs); };
+        logic.onFileFound = (lEventArgs) => { __this.onLogicFileFound(lEventArgs); };
+        logic.onResized = (lEventArgs) => { __this.onLogicResized(lEventArgs); };
+
         await logic.run();
     }
 
-    logic_onDirectoryFound(pDirectory) {
-        this.console.writeLine(`[${pDirectory.path}]`, pDirectory.indentation); 
+    onLogicCount(pEventArgs) {
+        if (!this.diagnostics.enabled) {
+            this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 20, this.console.width);
+            this.progress.reset(pEventArgs.count, "Resizing...");
+        }
     }
 
-    logic_onFileFound(pFile) {
-        this.console.writeLine(pFile.name, pFile.indentation); 
+    onLogicDirectoryFound(pEventArgs) {
+        const text = `[${pEventArgs.fileSystemItem.name}]`;
+        if (this.diagnostics.enabled)
+            this.console.writeLine(text, pEventArgs.indentation);
+        else
+            this.progress.move(0, text);
     }
 
-    logic_onResized(pImageInformation, pFile) {
-        this.console.writeLine(`${pImageInformation.width}x${pImageInformation.height} => ${pFile.path}`, pFile.indentation); 
+    onLogicFileFound(pEventArgs) {
+        const text = pEventArgs.fileSystemItem.name;
+        if (this.diagnostics.enabled)
+            this.console.writeLine(pEventArgs.fileName, pEventArgs.indentation + 1);
+        else
+            this.progress.move(1, text);
     }
+
+    onLogicResized(pEventArgs) {
+        const text = `${pEventArgs.imageInformation.width}x${pEventArgs.imageInformation.height} => ${pEventArgs.destinationFilePath}`;
+        if (this.diagnostics.enabled)
+            this.console.writeLine(text, pEventArgs.iIndentation + 2);
+        else
+            this.progress.move(0, text);
+    }
+
+    onProgressUpdate(pProgres) {
+        pProgres.render(this.console);
+    }    
 }

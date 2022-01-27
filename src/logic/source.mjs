@@ -8,11 +8,11 @@ import Path from "path";
 
 export class Source {
     get directory() { return this.mDirectory; }
-    set directory(pValue) { this.mDirectory = String.validate(pValue); }
+    set directory(pValue) { this.mDirectory = String.verify(pValue); }
     get fileFilter() { return this.mFileFilter; }
-    set fileFilter(pValue) { this.mFileFilter = String.validate(pValue); }
+    set fileFilter(pValue) { this.mFileFilter = String.verify(pValue); }
     get isPattern() { return this.mIsPattern; }
-    set isPattern(pValue) { this.mIsPattern = Boolean.validate(pValue); }
+    set isPattern(pValue) { this.mIsPattern = Boolean.verify(pValue); }
 
     constructor(pDirectory, pFileFilter, pIsPattern) {
         this.directory = pDirectory;
@@ -20,15 +20,18 @@ export class Source {
         this.isPattern = pIsPattern;
     }
 
-    validate() {
+    validate(pValidator) {
+        pValidator.setComponent(Source.name);
+        pValidator.testNotEmpty("Directory", this.directory);
         if (this.directory)
             if (!FileSystem.existsSync(this.directory))
-                throw new Error(`Directory "${this.directory}" doesn't exist`);
+                pValidator.addError("Directory", "does not exist");
         if ((this.fileFilter) && (!this.isPattern)) {
             const filePath = Path.join(this.directory, this.fileFilter);
             if (!FileSystem.existsSync(filePath))
-                throw new Error(`File "${filePath}" doesn't exist`);
+                pValidator.addError("Directory", `"${filePath}" does not exist`);
         }
+        pValidator.restoreComponent();
     }
 
     static parse(pPattern) {

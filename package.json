@@ -1,19 +1,20 @@
 {
     "name": "image-resizer",
     "displayName": "Image Resizer",
-    "version": "5.0.0",
+    "version": "4.0.0",
     "description": "Resizes images using ImageMagick",
     "author": "Jakub Hojnacki <jakubhojnacki@gmail.com>",
-    "date": "October 2021",
+    "date": "August 2021",
     "type": "module",
     "main": "./src/main.mjs",
     "scripts": {},
     "keywords": [],
     "license": "ISC",
     "dependencies": {
-        "console-library": "file:../lib/console-library",
-        "core-library": "file:../lib/core-library",
-        "file-system-library": "file:../lib/file-system-library",
-        "image-library": "file:../lib/image-library"
+        "fortah-console-library": "file:../FortahConsoleLibrary",
+        "fortah-core-library": "file:../FortahCoreLibrary",
+        "fortah-file-system-library": "file:../FortahFileSystemLibrary",
+        "fortah-image-library": "file:../FortahImageLibrary",
+        "imagemagick": "^0.1.3"
     }
 }
