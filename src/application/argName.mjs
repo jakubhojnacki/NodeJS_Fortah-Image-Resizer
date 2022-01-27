@@ -12,7 +12,8 @@ export class ArgName {
     static get sizes() { return "Sizes"; }
     static get directoryTemplate() { return "DirectoryTemplate"; }
     static get fileTemplate() { return "FileTemplate"; }
-    static get debugMode() { return "DebugMode"; }
+    static get imageProcessorType() { return "ImageProcessorType"; }
+    static get imageProcessorPath() { return "ImageProcessorPath"; }
 
     static get values() { return [
         new EnumItem(ArgName.source),
@@ -20,7 +21,8 @@ export class ArgName {
         new EnumItem(ArgName.sizes),
         new EnumItem(ArgName.directoryTemplate),
         new EnumItem(ArgName.fileTemplate),
-        new EnumItem(ArgName.debugMode)
+        new EnumItem(ArgName.imageProcessorType),
+        new EnumItem(ArgName.imageProcessorPath)
     ]; }
 
     static parse(pText) {

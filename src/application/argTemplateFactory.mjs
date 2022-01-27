@@ -16,7 +16,8 @@ export class ArgTemplateFactory extends ArgTemplateFactoryBase {
             new ArgTemplate(2, ArgName.sizes, "Comma-separated list of sizes", DataType.string, true),
             new ArgTemplate([ "dt", "directoryTemplate" ], ArgName.directoryTemplate, "Template of destination directory name", DataType.string),
             new ArgTemplate([ "ft", "fileTemplate" ], ArgName.fileTemplate, "Template of destination file name", DataType.string),
-            new ArgTemplate([ "d", "debugMode" ], ArgName.debugMode, "Defines debug mode (\"true\" or \"false\")", DataType.boolean)
+            new ArgTemplate([ "ipt", "imageProcessorType" ], ArgName.imageProcessorType, "Image processor type", DataType.string),
+            new ArgTemplate([ "ipp", "imageProcessorPath" ], ArgName.imageProcessorPath, "Image processor path", DataType.string)
         ]);
         return argTemplates;
     }

@@ -3,10 +3,11 @@
  * @description Represents the main application class
  */
 
-import ConsoleApplication from "fortah-console-application";
-import { ArgName } from "../application/argName.mjs";
+import { ConsoleApplication } from "fortah-console-library";
+import { ConsoleProgress } from "fortah-console-library";
 import { ArgTemplateFactory } from "../application/argTemplateFactory.mjs";
 import { Logic } from "../logic/logic.mjs";
+import { LogicArgs } from "../logic/logicArgs.mjs";
 
 export class Application extends ConsoleApplication {
     get progress() { return this.mProgress; }
@@ -18,37 +19,52 @@ export class Application extends ConsoleApplication {
     }
 
     async runLogic() {
-        const source = this.args.get(ArgName.source);
-        const destination = this.args.get(ArgName.destination);
-        const sizes = this.args.get(ArgName.sizes);
-        const directoryTemplate = this.args.get(ArgName.directoryTemplate, "");
-        const fileTemplate = this.args.get(ArgName.fileTemplate, "");
+        const logicArgs = new LogicArgs(this.args);
+        this.console.writeLine(logicArgs.toString());
 
-        this.console.writeLine(`Source: "${source}"`, 1);
-        this.console.writeLine(`Destination: "${destination}"`, 1);
-        this.console.writeLine(`Sizes: "${sizes}"`, 1);
-        this.console.writeLine(`Directory Template: "${directoryTemplate}"`, 1);
-        this.console.writeLine(`File Template: "${fileTemplate}"`, 1);
-
-        const logic = new Logic(source, destination, sizes, directoryTemplate, fileTemplate);
+        const logic = new Logic(this, logicArgs);
         
         const __this = this;
-        logic.onDirectoryFound = (lEventArgs) => { __this.logic_onDirectoryFound(lEventArgs); };
-        logic.onFileFound = (lEventArgs) => { __this.logic_onFileFound(lEventArgs); };
-        logic.onResized = (lEventArgs) => { __this.logic_onResized(lEventArgs); };
+        logic.onCount = (lEventArgs) => { __this.onLogicCount(lEventArgs); }
+        logic.onDirectoryFound = (lEventArgs) => { __this.onLogicDirectoryFound(lEventArgs); };
+        logic.onFileFound = (lEventArgs) => { __this.onLogicFileFound(lEventArgs); };
+        logic.onResized = (lEventArgs) => { __this.onLogicResized(lEventArgs); };
 
         await logic.run();
     }
 
-    logic_onDirectoryFound(pEventArgs) {
-        this.console.writeLine(`[${pEventArgs.directoryPath}]`, pEventArgs.indentation);
+    onLogicCount(pEventArgs) {
+        if (!this.diagnostics.enabled) {
+            this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 20, this.console.width);
+            this.progress.reset(pEventArgs.count, "Resizing...");
+        }
     }
 
-    logic_onFileFound(pEventArgs) {
-        this.console.writeLine(pEventArgs.fileName, pEventArgs.indentation + 1);
+    onLogicDirectoryFound(pEventArgs) {
+        const text = `[${pEventArgs.fileSystemItem.name}]`;
+        if (this.diagnostics.enabled)
+            this.console.writeLine(text, pEventArgs.indentation);
+        else
+            this.progress.move(0, text);
     }
 
-    logic_onResized(pEventArgs) {
-        this.console.writeLine(`${pEventArgs.imageInformation.width}x${pEventArgs.imageInformation.height} => ${pEventArgs.destinationFilePath}`, pEventArgs.iIndentation + 2);        
+    onLogicFileFound(pEventArgs) {
+        const text = pEventArgs.fileSystemItem.name;
+        if (this.diagnostics.enabled)
+            this.console.writeLine(pEventArgs.fileName, pEventArgs.indentation + 1);
+        else
+            this.progress.move(1, text);
     }
+
+    onLogicResized(pEventArgs) {
+        const text = `${pEventArgs.imageInformation.width}x${pEventArgs.imageInformation.height} => ${pEventArgs.destinationFilePath}`;
+        if (this.diagnostics.enabled)
+            this.console.writeLine(text, pEventArgs.iIndentation + 2);
+        else
+            this.progress.move(0, text);
+    }
+
+    onProgressUpdate(pProgres) {
+        pProgres.render(this.console);
+    }    
 }
