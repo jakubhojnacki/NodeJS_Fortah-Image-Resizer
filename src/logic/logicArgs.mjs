@@ -34,15 +34,15 @@ export class LogicArgs {
         this.imageProcessorPath = pArgs.get(ArgName.imageProcessorPath, "");
     }
 
-    toString() {
-        const stringBuilder = new StringBuilder();
-        stringBuilder.addNameValue("Source", this.source);
-        stringBuilder.addNameValue("Destination", this.destination);
-        stringBuilder.addNameValue("Sizes", this.sizes);
-        stringBuilder.addNameValue("Directory Template", this.directoryTemplate);
-        stringBuilder.addNameValue("File Template", this.fileTemplate);
-        stringBuilder.addNameValue("Image Processor Type", this.imageProcessorType);
-        stringBuilder.addNameValue("Image Processor Path", this.imageProcessorPath);
+    toString(pIndentation) {
+        const stringBuilder = new StringBuilder(true);
+        stringBuilder.addNameValue("Source", this.source, pIndentation);
+        stringBuilder.addNameValue("Destination", this.destination, pIndentation);
+        stringBuilder.addNameValue("Sizes", this.sizes, pIndentation);
+        stringBuilder.addNameValue("Directory Template", this.directoryTemplate, pIndentation);
+        stringBuilder.addNameValue("File Template", this.fileTemplate, pIndentation);
+        stringBuilder.addNameValue("Image Processor Type", this.imageProcessorType, pIndentation);
+        stringBuilder.addNameValue("Image Processor Path", this.imageProcessorPath, pIndentation);
         return stringBuilder.toString();
     }
 

@@ -5,6 +5,7 @@
 
 import { ArgName } from "../application/argName.mjs";
 import { ArgTemplate } from "fortah-core-library";
+import { ArgTemplateFactoryBase } from "fortah-core-library";
 import { DataType } from "fortah-core-library";
 
 export class ArgTemplateFactory extends ArgTemplateFactoryBase {

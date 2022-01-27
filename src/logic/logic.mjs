@@ -12,9 +12,12 @@ import { FileSystemItemEventArgs } from "./fileSystemItemEventArgs.mjs";
 import { FileSystemItemType } from "fortah-file-system-library";
 import { FileSystemMatcher } from "fortah-file-system-library";
 import { FileSystemToolkit } from "fortah-file-system-library";
+import { ImageProcessorFactory } from "fortah-image-library";
+import { ImageProcessorType } from "fortah-image-library";
 import { ResizedEventArgs } from "../logic/resizedEventArgs.mjs";
 import { Sizes } from "../logic/sizes.mjs";
 import { Source } from "../logic/source.mjs";
+import { Validator } from "fortah-core-library";
 
 export class Logic {
     get application() { return this.mApplication; }
@@ -71,19 +74,26 @@ export class Logic {
 
         this.args.validate(validator);
 
-        this.source = Source.parse(pSource);
-        this.source.validate(validator);
+        this.source = Source.parse(this.args.source);
+        validator.testNotEmpty("Source", this.source);
+        if (this.source) 
+            this.source.validate(validator);
 
         if (this.args.destination)
             if (!FileSystem.existsSync(this.args.destination))
                 validator.addError("Destination", "does not exist");
 
         this.sizes = Sizes.parse(this.args.sizes);
-        this.sizes.validate(validator);
+        validator.testNotEmpty("Sizes", this.sizes);
+        if (this.sizes)
+            this.sizes.validate(validator);
 
-        this.imageProcessor = (new ImageProcessorFactory()).create(this.args.imageProcessorType, this.args.imageProcessorPath, this.application.rootDirectoryPath);            
+        const imageProcessorType = this.args.imageProcessorType ? this.args.imageProcessorType : ImageProcessorType.imageMagickModule;
+        this.imageProcessor = (new ImageProcessorFactory()).create(imageProcessorType, this.args.imageProcessorPath, this.application.rootDirectoryPath);            
+        validator.testNotEmpty("Image Processor", this.imageProcessor);
 
         this.sourceFileMatcher = new FileSystemMatcher(this.source.fileFilter);
+        validator.testNotEmpty("Source File Matcher", this.sourceFileMatcher);
 
         validator.restoreComponent();
         return validator.require();
@@ -97,7 +107,7 @@ export class Logic {
     }
 
     countDirectory(pDirectory, pCountSoFar) {
-        const count = pCountSoFar;
+        let count = pCountSoFar;
         const directoryItems = FileSystemToolkit.readDirectory(pDirectory.path);
         for (const directoryItem of directoryItems)
             switch (directoryItem.type) {
@@ -137,8 +147,9 @@ export class Logic {
     async processFile(pSourceFile, pDirectorySubPath, pIndentation) {
         if (this.onFileFound)
             this.onFileFound(new FileSystemItemEventArgs(pSourceFile, pIndentation));
+        const sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
         for (const size of this.sizes) {
-            const sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile);
+            /*            
             if ((sourceImageInformation.width != size.width) || (sourceImageInformation.height != size.height)) {
                 const sourceFileExtension = FileSystemToolkit.getFileExtension(pSourceFile.name).removeIfStartsWith(".");
                 const temporaryFilePath = this.buildTemporaryFilePath(sourceFileExtension);
@@ -155,6 +166,7 @@ export class Logic {
                 if (this.onResized)
                     this.onResized(new ResizedEventArgs(sourceImageInformation, destinationFilePath, pIndentation));
             }
+            */
         }
     }
 
@@ -169,9 +181,9 @@ export class Logic {
         const widthText = pImageInformation.width.pad(4);
         const heightText = pImageInformation.height.pad(4);
         const replacements = [ sourceFileNameWithoutExtension, pImageInformation.width, pImageInformation.height, widthText, heightText ];
-        const directoryTemplate = String.validate(this.directoryTemplate);
+        const directoryTemplate = String.verify(this.directoryTemplate);
         const directoryName = directoryTemplate.format(replacements);
-        const fileTemplate = String.validate(this.fileTemplate ? this.fileTemplate : "{0} {1}x{2}");
+        const fileTemplate = String.verify(this.fileTemplate ? this.fileTemplate : "{0} {1}x{2}");
         const fileName = `${fileTemplate.format(replacements)}${sourceFileExtension}`;
         return Path.join(this.destination, directoryName, pDirectorySubPath, fileName);
     }

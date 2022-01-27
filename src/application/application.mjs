@@ -20,7 +20,7 @@ export class Application extends ConsoleApplication {
 
     async runLogic() {
         const logicArgs = new LogicArgs(this.args);
-        this.console.writeLine(logicArgs.toString());
+        this.console.writeLine(logicArgs.toString(this.console.tab));
 
         const logic = new Logic(this, logicArgs);
         
@@ -35,6 +35,7 @@ export class Application extends ConsoleApplication {
 
     onLogicCount(pEventArgs) {
         if (!this.diagnostics.enabled) {
+            const __this = this;
             this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 20, this.console.width);
             this.progress.reset(pEventArgs.count, "Resizing...");
         }
@@ -67,4 +68,9 @@ export class Application extends ConsoleApplication {
     onProgressUpdate(pProgres) {
         pProgres.render(this.console);
     }    
+
+    finalise() {
+        this.console.writeLine();
+        super.finalise();
+    }
 }

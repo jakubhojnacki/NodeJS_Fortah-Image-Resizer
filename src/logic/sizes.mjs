@@ -1,13 +1,11 @@
 /**
  * @module "Sizes" class
  * @description Keeps a collection of sizes
- * @version 0.0.1 (2021-08-13)
  */
 
-import "../general/javaScript.js";
-import Size from "./size.js";
+import { Size } from "../logic/size.mjs";
 
-export default class Sizes extends Array {
+export class Sizes extends Array {
     constructor() {
         super();
     }
@@ -21,5 +19,10 @@ export default class Sizes extends Array {
             sizes.push(size);
         }
         return sizes;
+    }
+
+    validate(pValidator) {
+        for (const size of this)
+            size.validate(pValidator);
     }
 }
