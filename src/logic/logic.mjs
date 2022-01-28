@@ -149,11 +149,10 @@ export class Logic {
             this.onFileFound(new FileSystemItemEventArgs(pSourceFile, pIndentation));
         const sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
         for (const size of this.sizes) {
-            /*            
             if ((sourceImageInformation.width != size.width) || (sourceImageInformation.height != size.height)) {
                 const sourceFileExtension = FileSystemToolkit.getFileExtension(pSourceFile.name).removeIfStartsWith(".");
                 const temporaryFilePath = this.buildTemporaryFilePath(sourceFileExtension);
-                FileSystemToolkit.deleteIfExists(temporaryFilePath);
+                FileSystemToolkit.deleteFileIfExists(temporaryFilePath);
                 await this.imageProcessor.resize(pSourceFile.path, temporaryFilePath, size.width, size.height, size.ignoreAspectRatio);
                 const destinationImageInformation = await this.imageProcessor.getInformation(temporaryFilePath);
                 const destinationFilePath = this.buildDestinationFilePath(pSourceFile.name, destinationImageInformation, pDirectorySubPath);
@@ -166,13 +165,12 @@ export class Logic {
                 if (this.onResized)
                     this.onResized(new ResizedEventArgs(sourceImageInformation, destinationFilePath, pIndentation));
             }
-            */
         }
     }
 
     buildTemporaryFilePath(pSourceFileExtension) {        
         const fileName = `${Date.createFileTimeStamp()}${pSourceFileExtension}`;
-        return Path.join(this.destination, fileName);
+        return Path.join(this.args.destination, fileName);
     }
 
     buildDestinationFilePath(pSourceFileName, pImageInformation, pDirectorySubPath) {
@@ -181,11 +179,11 @@ export class Logic {
         const widthText = pImageInformation.width.pad(4);
         const heightText = pImageInformation.height.pad(4);
         const replacements = [ sourceFileNameWithoutExtension, pImageInformation.width, pImageInformation.height, widthText, heightText ];
-        const directoryTemplate = String.verify(this.directoryTemplate);
+        const directoryTemplate = String.verify(this.args.directoryTemplate);
         const directoryName = directoryTemplate.format(replacements);
-        const fileTemplate = String.verify(this.fileTemplate ? this.fileTemplate : "{0} {1}x{2}");
+        const fileTemplate = String.verify(this.args.fileTemplate ? this.args.fileTemplate : "{0} {1}x{2}");
         const fileName = `${fileTemplate.format(replacements)}${sourceFileExtension}`;
-        return Path.join(this.destination, directoryName, pDirectorySubPath, fileName);
+        return Path.join(this.args.destination, directoryName, pDirectorySubPath, fileName);
     }
 
     finalise() {        

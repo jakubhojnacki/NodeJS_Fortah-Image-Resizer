@@ -15,6 +15,7 @@ export class Application extends ConsoleApplication {
 
     constructor(pRootDirectoryPath) {
         super(pRootDirectoryPath, (new ArgTemplateFactory()).create());
+        this.newLineOnError = true;
         this.progress = null;        
     }
 
@@ -70,7 +71,7 @@ export class Application extends ConsoleApplication {
     }    
 
     finalise() {
-        this.console.writeLine();
+        this.console.newLine();
         super.finalise();
     }
 }
