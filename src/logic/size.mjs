@@ -36,6 +36,8 @@ export class Size {
         width = textParts[0];
         if (textParts.length > 1)
             height = textParts[1];
+        else
+            height = width;
         const size = new Size(width, height, ignoreAspectRatio);
         return size;
     }

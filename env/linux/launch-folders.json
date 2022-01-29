@@ -10,12 +10,13 @@
             ],
             "program": "${workspaceFolder}/src/main.mjs",
             "args": [                
-                "/home/Temp/From/*.png",
+                "/home/Temp/From",
                 "/home/Temp/To",
                 "16,24,32,48,64,128,256",
+                "-sfm", "*.png",
                 "-dt", "{3}",
                 "-ft", "{0}",
-                "-d"
+                "-de"
             ]
         }
     ]

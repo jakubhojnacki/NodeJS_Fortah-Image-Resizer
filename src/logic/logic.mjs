@@ -6,9 +6,10 @@
 import FileSystem from "fs";
 import Path from "path";
 
-import { CountEventArgs } from "./countEventArgs.mjs";
+import { CountEventArgs } from "../logic/countEventArgs.mjs";
+import { DirectoryEventArgs } from "../logic/directoryEventArgs.mjs";
 import { FileSystemItem } from "fortah-file-system-library";
-import { FileSystemItemEventArgs } from "./fileSystemItemEventArgs.mjs";
+import { FileEventArgs } from "../logic/fileEventArgs.mjs";
 import { FileSystemItemType } from "fortah-file-system-library";
 import { FileSystemMatcher } from "fortah-file-system-library";
 import { FileSystemToolkit } from "fortah-file-system-library";
@@ -16,7 +17,6 @@ import { ImageProcessorFactory } from "fortah-image-library";
 import { ImageProcessorType } from "fortah-image-library";
 import { ResizedEventArgs } from "../logic/resizedEventArgs.mjs";
 import { Sizes } from "../logic/sizes.mjs";
-import { Source } from "../logic/source.mjs";
 import { Validator } from "fortah-core-library";
 
 export class Logic {
@@ -26,8 +26,6 @@ export class Logic {
     get args() { return this.mArgs; }
     set args(pValue) { this.mArgs = pValue; }
 
-    get source() { return this.mSource; }
-    set source(pValue) { this.mSource = pValue; }
     get sizes() { return this.mSizes; }
     set sizes(pValue) { this.mSizes = pValue; }
     get imageProcessor() { return this.mImageProcessor; }
@@ -49,7 +47,6 @@ export class Logic {
 
         this.args = pArgs;
 
-        this.source = null;
         this.sizes = null;
         this.imageProcessor = null;
         this.sourceFileMatcher = null;
@@ -74,14 +71,12 @@ export class Logic {
 
         this.args.validate(validator);
 
-        this.source = Source.parse(this.args.source);
-        validator.testNotEmpty("Source", this.source);
-        if (this.source) 
-            this.source.validate(validator);
-
+        if (this.args.source)
+            if (!FileSystem.existsSync(this.args.source))
+                validator.addError("Source Directory", "does not exist");
         if (this.args.destination)
             if (!FileSystem.existsSync(this.args.destination))
-                validator.addError("Destination", "does not exist");
+                validator.addError("Destination Directory", "does not exist");
 
         this.sizes = Sizes.parse(this.args.sizes);
         validator.testNotEmpty("Sizes", this.sizes);
@@ -92,15 +87,14 @@ export class Logic {
         this.imageProcessor = (new ImageProcessorFactory()).create(imageProcessorType, this.args.imageProcessorPath, this.application.rootDirectoryPath);            
         validator.testNotEmpty("Image Processor", this.imageProcessor);
 
-        this.sourceFileMatcher = new FileSystemMatcher(this.source.fileFilter);
-        validator.testNotEmpty("Source File Matcher", this.sourceFileMatcher);
+        this.sourceFileMatcher = this.args.sourceFileMask ? new FileSystemMatcher(this.args.sourceFileMask) : null;
 
         validator.restoreComponent();
         return validator.require();
     }
 
     count() {
-        const directory = new FileSystemItem(FileSystemItemType.directory, this.source.directory);
+        const directory = new FileSystemItem(FileSystemItemType.directory, this.args.source);
         const count = this.countDirectory(directory, 0);
         if (this.onCount)
             this.onCount(new CountEventArgs(count));
@@ -112,10 +106,10 @@ export class Logic {
         for (const directoryItem of directoryItems)
             switch (directoryItem.type) {
                 case FileSystemItemType.directory:
-                    count = this.countDirectory(directoryItem.path, count);
+                    count = this.countDirectory(directoryItem, count);
                     break;
                 case FileSystemItemType.file:
-                    if (this.sourceFileMatcher.matches(directoryItem.name))
+                    if ((this.sourceFileMatcher == null) || (this.sourceFileMatcher.matches(directoryItem.name)))
                         count++;
                     break;
             }
@@ -123,13 +117,13 @@ export class Logic {
     }
 
     async process() {
-        const directory = new FileSystemItem(FileSystemItemType.directory, this.source.directory);
+        const directory = new FileSystemItem(FileSystemItemType.directory, this.args.source);
         await this.processDirectory(directory, "", 0);
     }
 
     async processDirectory(pSourceDirectory, pDirectorySubPath, pIndentation) {
         if (this.onDirectoryFound)
-            this.onDirectoryFound(new FileSystemItemEventArgs(pSourceDirectory, pIndentation));
+            this.onDirectoryFound(new DirectoryEventArgs(pSourceDirectory, pIndentation));
         const sourceDirectoryItems = FileSystemToolkit.readDirectory(pSourceDirectory.path);
         for (const sourceDirectoryItem of sourceDirectoryItems)
             switch (sourceDirectoryItem.type) {
@@ -138,7 +132,7 @@ export class Logic {
                     await this.processDirectory(sourceDirectoryItem, subDirectoryPath, pIndentation + 1);
                 } break;
                 case FileSystemItemType.file:
-                    if (this.sourceFileMatcher.matches(sourceDirectoryItem.name))
+                    if ((this.sourceFileMatcher == null) || (this.sourceFileMatcher.matches(sourceDirectoryItem.name)))
                         await this.processFile(sourceDirectoryItem, pDirectorySubPath, pIndentation);
                     break;
             }
@@ -146,7 +140,7 @@ export class Logic {
 
     async processFile(pSourceFile, pDirectorySubPath, pIndentation) {
         if (this.onFileFound)
-            this.onFileFound(new FileSystemItemEventArgs(pSourceFile, pIndentation));
+            this.onFileFound(new FileEventArgs(pSourceFile, pIndentation));
         const sourceImageInformation = await this.imageProcessor.getInformation(pSourceFile.path);
         for (const size of this.sizes) {
             if ((sourceImageInformation.width != size.width) || (sourceImageInformation.height != size.height)) {
@@ -161,7 +155,7 @@ export class Logic {
                     this.onResized(new ResizedEventArgs(destinationImageInformation, destinationFilePath, pIndentation));
             } else {
                 const destinationFilePath = this.buildDestinationFilePath(pSourceFile.name, sourceImageInformation, pDirectorySubPath);
-                FileSystemToolkit.copyFile(temporaryFilePath, destinationFilePath);
+                FileSystemToolkit.copyFile(pSourceFile.path, destinationFilePath);
                 if (this.onResized)
                     this.onResized(new ResizedEventArgs(sourceImageInformation, destinationFilePath, pIndentation));
             }
@@ -169,7 +163,7 @@ export class Logic {
     }
 
     buildTemporaryFilePath(pSourceFileExtension) {        
-        const fileName = `${Date.createFileTimeStamp()}${pSourceFileExtension}`;
+        const fileName = `${Date.createFileTimeStamp()}.${pSourceFileExtension}`;
         return Path.join(this.args.destination, fileName);
     }
 

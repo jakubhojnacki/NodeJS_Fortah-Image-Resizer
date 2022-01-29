@@ -10,11 +10,12 @@
             ],
             "program": "${workspaceFolder}/src/main.mjs",
             "args": [                
-                "C:\\Temp\\From\\*.png",
+                "C:\\Temp\\From",
                 "C:\\Temp\\To",
                 "16,24,32,48,64,128,256",
+                "-sfm", "*.png",
                 "-ft", "{0} {3}",
-                "-d"
+                "-de"
             ]
         }
     ]

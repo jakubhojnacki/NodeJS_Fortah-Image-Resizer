@@ -37,13 +37,13 @@ export class Application extends ConsoleApplication {
     onLogicCount(pEventArgs) {
         if (!this.diagnostics.enabled) {
             const __this = this;
-            this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 20, this.console.width);
+            this.progress = new ConsoleProgress(null, null, (lProgress) => { __this.onProgressUpdate(lProgress); }, "[", "#", "]", 40, this.console.width);
             this.progress.reset(pEventArgs.count, "Resizing...");
         }
     }
 
     onLogicDirectoryFound(pEventArgs) {
-        const text = `[${pEventArgs.fileSystemItem.name}]`;
+        const text = `[${pEventArgs.directory.name}]`;
         if (this.diagnostics.enabled)
             this.console.writeLine(text, pEventArgs.indentation);
         else
@@ -51,19 +51,19 @@ export class Application extends ConsoleApplication {
     }
 
     onLogicFileFound(pEventArgs) {
-        const text = pEventArgs.fileSystemItem.name;
+        const text = pEventArgs.file.name;
         if (this.diagnostics.enabled)
-            this.console.writeLine(pEventArgs.fileName, pEventArgs.indentation + 1);
+            this.console.writeLine(text, pEventArgs.indentation + 1);
         else
             this.progress.move(1, text);
     }
 
     onLogicResized(pEventArgs) {
-        const text = `${pEventArgs.imageInformation.width}x${pEventArgs.imageInformation.height} => ${pEventArgs.destinationFilePath}`;
+        const text = `${pEventArgs.imageInformation.width}x${pEventArgs.imageInformation.height} => ${pEventArgs.path}`;
         if (this.diagnostics.enabled)
-            this.console.writeLine(text, pEventArgs.iIndentation + 2);
-        else
-            this.progress.move(0, text);
+            this.console.writeLine(text, pEventArgs.indentation + 2);
+        //else
+        //    this.progress.move(0, text);
     }
 
     onProgressUpdate(pProgres) {

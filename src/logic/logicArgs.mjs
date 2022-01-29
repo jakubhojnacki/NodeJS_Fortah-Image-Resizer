@@ -11,6 +11,8 @@ import { StringBuilder } from "fortah-core-library";
 export class LogicArgs {
     get source() { return this.mSource; }
     set source(pValue) { this.mSource = String.verify(pValue); }
+    get sourceFileMask() { return this.mSourceFileMask; }
+    set sourceFileMask(pValue) { this.mSourceFileMask = String.verify(pValue); }
     get destination() { return this.mDestination; }
     set destination(pValue) { this.mDestination = String.verify(pValue); }
     get sizes() { return this.mSizes; }
@@ -26,6 +28,7 @@ export class LogicArgs {
 
     constructor(pArgs) {
         this.source = pArgs.get(ArgName.source);
+        this.sourceFileMask = pArgs.get(ArgName.sourceFileMask, "");
         this.destination = pArgs.get(ArgName.destination);
         this.sizes = pArgs.get(ArgName.sizes);
         this.directoryTemplate = pArgs.get(ArgName.directoryTemplate, "");
@@ -37,6 +40,7 @@ export class LogicArgs {
     toString(pIndentation) {
         const stringBuilder = new StringBuilder(true);
         stringBuilder.addNameValue("Source", this.source, pIndentation);
+        stringBuilder.addNameValue("Source File Mask", this.sourceFileMask, pIndentation);
         stringBuilder.addNameValue("Destination", this.destination, pIndentation);
         stringBuilder.addNameValue("Sizes", this.sizes, pIndentation);
         stringBuilder.addNameValue("Directory Template", this.directoryTemplate, pIndentation);

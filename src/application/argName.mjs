@@ -8,6 +8,7 @@ import { EnumItem } from "fortah-core-library";
 
 export class ArgName {
     static get source() { return "Source"; }
+    static get sourceFileMask() { return "SourceFileMask"; }
     static get destination() { return "Destination"; }
     static get sizes() { return "Sizes"; }
     static get directoryTemplate() { return "DirectoryTemplate"; }
@@ -17,6 +18,7 @@ export class ArgName {
 
     static get values() { return [
         new EnumItem(ArgName.source),
+        new EnumItem(ArgName.sourceFileMask),
         new EnumItem(ArgName.destination),
         new EnumItem(ArgName.sizes),
         new EnumItem(ArgName.directoryTemplate),
