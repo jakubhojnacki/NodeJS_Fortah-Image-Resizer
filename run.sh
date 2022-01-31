@@ -1,20 +1,21 @@
 #!/bin/bash
 
-Mode=Files
-Source=/home/Temp/From/*.png
-Destination=/home/Temp/To
-Sizes=16,24,32,48,64,128,256
+tty -s || exec konsole -e "$0" "$@"
 
-if [[ $Mode -eq "Folders" ]]
-then
-    echo "==> Folders Mode ==>"
-    node "./src/main.mjs" "%Source%" "%Destination%" "%Sizes%" -dt "{3}" -ft "{0}" -d
+mode=directories
+source=/home/Temp/From
+sourceFileMask=*.png
+destination=/home/Temp/To
+sizes=16,24,32,48,64,128,256
+
+if [[ $mode = "directories" ]]; then
+    echo "==> Directories Mode ==>"
+    node "./src/main.mjs" "$source" "$destination" "$sizes" -sfm "$sourceFileMask" -dt "{3}" -ft "{0}"
 fi
 
-if [[ $Mode -eq "Files" ]]
-then
+if [[ $mode = "files" ]]; then
     echo "==> Files Mode ==>"
-    node "./src/main.mjs" "%Source%" "%Destination%" "%Sizes%" -ft "{0} {3}" -d
+    node "./src/main.mjs" "$source" "$destination" "$sizes" -sfm "$sourceFileMask" -ft "{0} {3}"
 fi
 
-read -p "Press enter to finish"    
+read -n 1 -s -r -p "(Press any key to end)"
